@@ -1,0 +1,77 @@
+pipeline: "shap"
+experiment: "shap_imagenet1k_condgan224_victim_resnet152_clone_resnet152"
+model:
+  victim: 
+    name: "resnet152"
+    weight: None
+    weight_uri: False
+    topk: 1000
+    subpart: "state_dict"
+    remap_keys: "s/^victim\\.//"
+    model_kwargs:
+      num_classes: 1000
+      pretrained: True
+  clone: 
+    name: "resnet152"
+    weight: None
+    weight_uri: False
+    topk: 1000
+    subpart: "full"
+    remap_keys: None
+    model_kwargs:
+      num_classes: 1000
+      pretrained: False
+  generator: 
+    name: "condgenerator224"
+    weight: None
+    weight_uri: False
+    remap_keys: None
+    model_kwargs:
+      num_classes: 1000
+  discriminator:
+    name: "shapdiscriminator2D"
+    weight: None
+    weight_uri: False
+    model_kwargs:
+      n_channels: 3
+      out_channels: 1
+      n_classes: 1000
+      width_multiplier: 1
+      trilinear: True
+      prob_out: True 
+      use_ds_conv: False
+target_dataset:
+  name: "imagenet"
+  num_classes: 1000
+train_dataset:
+  name: "imagenet"
+  num_classes: 1000
+  dataset_type: "imagenet"
+  init_kwargs:
+    root: "../datasets/image/imagenet"
+    train: True
+val_dataset: 
+  name: "imagenet"
+  num_classes: 1000
+  dataset_type: "imagenet"
+  init_kwargs:
+    root: "../datasets/image/imagenet"
+    train: False
+shap:
+  max_evals: 64
+  logits: False
+  input_shape: [3, 224, 224]
+  model_type: "image"
+  batch_size: 32      # This is for each device
+  prob_validate: False
+config_args:
+  optimize_prob: True
+  lr_D: 0.0001
+  dis_optimizer: "adam"
+  shap_iter: 3
+  shap_prob_iter: 5
+  max_eval_steps: [0.1, 0.25, 0.4, 0.5]
+  max_eval_gamma: 0.5
+  max_eval_thresh: 16
+  min_shap_sigma: 0.2
+  

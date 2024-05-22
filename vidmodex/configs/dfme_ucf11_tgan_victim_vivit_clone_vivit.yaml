@@ -1,0 +1,43 @@
+pipeline: "dfme"
+experiment: "dfme_ucf11_tgan_victim_vivit_clone_vivit"
+model:
+  victim:
+    name: "vivit"
+    weight: "weights/pretrained/vivit/vivit_ucf11_1k.pth"
+    weight_uri: False
+    model_kwargs:
+      image_size: 224
+      patch_size: 16
+      num_classes: 11
+      num_frames: 16
+  clone: 
+    name: "vivit"
+    weight: None
+    weight_uri: False
+    model_kwargs:
+      image_size: 224
+      patch_size: 16
+      num_classes: 11
+      num_frames: 16
+  generator: 
+    name: "tgan"
+    weight: None
+    weight_uri: False
+    model_kwargs: {}
+target_dataset:
+  name: "ucf11"
+  num_classes: 11
+train_dataset:
+  name: "ucf11"
+  num_classes: 11
+  dataset_type: "videoDataset"
+  init_kwargs:
+    dataset_root: "../datasets/video/UCF11/"
+    dataset_csv: "../datasets/video/ucf-11_train.csv"
+val_dataset: 
+  name: "ucf11"
+  num_classes: 11
+  dataset_type: "videoDataset"
+  init_kwargs:
+    dataset_root: "../datasets/video/UCF11/"
+    dataset_csv: "../datasets/video/ucf-11_train.csv"

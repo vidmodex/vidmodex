@@ -1,0 +1,42 @@
+pipeline: "dfme"
+experiment: "dfme_caltech101_gan256_victim_efficientnet_b7_clone_efficientnet_b7"
+model:
+  victim: 
+    name: "efficientnet_b7"
+    weight: "weights/pretrained/efficientnet/efficientnet_b7_caltech101_1.0k.ckpt"
+    weight_uri: False
+    topk: 101
+    subpart: "state_dict"
+    remap_keys: "s/^victim\\.//"
+    model_kwargs:
+      num_classes: 101
+  clone: 
+    name: "efficientnet_b7"
+    weight: None #"weights/pretrained/state_dicts/cifar_10_cifar_resnet101.pt"
+    weight_uri: False
+    topk: 101
+    subpart: "full"
+    model_kwargs:
+      num_classes: 101
+  generator: 
+    name: "generator256"
+    weight: None
+    weight_uri: False
+    model_kwargs: {}
+target_dataset:
+  name: "caltech101"
+  num_classes: 101
+train_dataset:
+  name: "caltech101"
+  num_classes: 101
+  dataset_type: "caltech101"
+  init_kwargs:
+    root: "../datasets/image/caltech101"
+    train: True
+val_dataset: 
+  name: "caltech101"
+  num_classes: 101
+  dataset_type: "caltech101"
+  init_kwargs:
+    root: "../datasets/image/caltech101"
+    train: False

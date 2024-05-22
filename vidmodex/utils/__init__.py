@@ -1,0 +1,125 @@
+from .tensorTransforms import TensorTransformFactory, transform_gan2vivit, transform_gan2swint
+from .imageTransforms import gan2resnet18_transform, gan2resnet34_transform, gan2resnet50_transform, gan2resnet101_transform, gan2resnet152_transform
+from .imageTransforms import gan2vgg11_transform, gan2vgg11_bn_transform, gan2vgg13_transform, gan2vgg13_bn_transform, gan2vgg16_transform, gan2vgg16_bn_transform, gan2vgg19_transform, gan2vgg19_bn_transform
+from .imageTransforms import gan2alexnet_transform
+from .imageTransforms import gan2efficientnet_b0_transform, gan2efficientnet_b1_transform, gan2efficientnet_b2_transform, gan2efficientnet_b3_transform, gan2efficientnet_b4_transform, gan2efficientnet_b5_transform, gan2efficientnet_b6_transform, gan2efficientnet_b7_transform
+from .imageTransforms import gan2mobilenet_v2_transform
+from .imageTransforms import gan2shufflenet_v2_x0_5_transform, gan2shufflenet_v2_x1_0_transform, gan2shufflenet_v2_x1_5_transform, gan2shufflenet_v2_x2_0_transform
+from .imageTransforms import gan2inception_v3_transform
+from .imageTransforms import gan2densenet121_transform, gan2densenet169_transform, gan2densenet201_transform, gan2densenet161_transform
+from .imageTransforms import gan2googlenet_transform
+from .imageTransforms import gan2mnasnet0_5_transform, gan2mnasnet0_75_transform, gan2mnasnet1_0_transform, gan2mnasnet1_3_transform
+from .imageTransforms import gan2resnext50_32x4d_transform, gan2resnext101_32x8d_transform
+from .imageTransforms import gan2wide_resnet50_2_transform, gan2wide_resnet101_2_transform
+from .imageTransforms import gan2squeezenet1_0_transform, gan2squeezenet1_1_transform
+
+from .videoTransforms import transform_vivit, transform_swint
+from .imageTransforms import img2resnet18_transform, img2resnet34_transform, img2resnet50_transform, img2resnet101_transform, img2resnet152_transform
+from .imageTransforms import img2vgg11_transform, img2vgg11_bn_transform, img2vgg13_transform, img2vgg13_bn_transform, img2vgg16_transform, img2vgg16_bn_transform, img2vgg19_transform, img2vgg19_bn_transform
+from .imageTransforms import img2alexnet_transform
+from .imageTransforms import img2efficientnet_b0_transform, img2efficientnet_b1_transform, img2efficientnet_b2_transform, img2efficientnet_b3_transform, img2efficientnet_b4_transform, img2efficientnet_b5_transform, img2efficientnet_b6_transform, img2efficientnet_b7_transform
+from .imageTransforms import img2mobilenet_v2_transform
+from .imageTransforms import img2shufflenet_v2_x0_5_transform, img2shufflenet_v2_x1_0_transform, img2shufflenet_v2_x1_5_transform, img2shufflenet_v2_x2_0_transform
+from .imageTransforms import img2inception_v3_transform
+from .imageTransforms import img2densenet121_transform, img2densenet169_transform, img2densenet201_transform, img2densenet161_transform
+from .imageTransforms import img2googlenet_transform
+from .imageTransforms import img2mnasnet0_5_transform, img2mnasnet0_75_transform, img2mnasnet1_0_transform, img2mnasnet1_3_transform
+from .imageTransforms import img2resnext50_32x4d_transform, img2resnext101_32x8d_transform
+from .imageTransforms import img2wide_resnet50_2_transform, img2wide_resnet101_2_transform
+from .imageTransforms import img2squeezenet1_0_transform, img2squeezenet1_1_transform
+
+TensorTransformFactory.register("img2vivit")(transform_vivit)
+TensorTransformFactory.register("img2swint")(transform_swint)
+
+TensorTransformFactory.register("gan2vivit")(transform_gan2vivit)
+TensorTransformFactory.register("gan2swint")(transform_gan2swint)
+
+TensorTransformFactory.register("img2resnet18")(img2resnet18_transform)
+TensorTransformFactory.register("img2resnet34")(img2resnet34_transform)
+TensorTransformFactory.register("img2resnet50")(img2resnet50_transform)
+TensorTransformFactory.register("img2resnet101")(img2resnet101_transform)
+TensorTransformFactory.register("img2resnet152")(img2resnet152_transform)
+TensorTransformFactory.register("img2vgg11")(img2vgg11_transform)
+TensorTransformFactory.register("img2vgg11_bn")(img2vgg11_bn_transform)
+TensorTransformFactory.register("img2vgg13")(img2vgg13_transform)
+TensorTransformFactory.register("img2vgg13_bn")(img2vgg13_bn_transform)
+TensorTransformFactory.register("img2vgg16")(img2vgg16_transform)
+TensorTransformFactory.register("img2vgg16_bn")(img2vgg16_bn_transform)
+TensorTransformFactory.register("img2vgg19")(img2vgg19_transform)
+TensorTransformFactory.register("img2vgg19_bn")(img2vgg19_bn_transform)
+TensorTransformFactory.register("img2alexnet")(img2alexnet_transform)
+TensorTransformFactory.register("img2efficientnet_b0")(img2efficientnet_b0_transform)
+TensorTransformFactory.register("img2efficientnet_b1")(img2efficientnet_b1_transform)
+TensorTransformFactory.register("img2efficientnet_b2")(img2efficientnet_b2_transform)
+TensorTransformFactory.register("img2efficientnet_b3")(img2efficientnet_b3_transform)
+TensorTransformFactory.register("img2efficientnet_b4")(img2efficientnet_b4_transform)
+TensorTransformFactory.register("img2efficientnet_b5")(img2efficientnet_b5_transform)
+TensorTransformFactory.register("img2efficientnet_b6")(img2efficientnet_b6_transform)
+TensorTransformFactory.register("img2efficientnet_b7")(img2efficientnet_b7_transform)
+TensorTransformFactory.register("img2mobilenet_v2")(img2mobilenet_v2_transform)
+TensorTransformFactory.register("img2shufflenet_v2_x0_5")(img2shufflenet_v2_x0_5_transform)
+TensorTransformFactory.register("img2shufflenet_v2_x1_0")(img2shufflenet_v2_x1_0_transform)
+TensorTransformFactory.register("img2shufflenet_v2_x1_5")(img2shufflenet_v2_x1_5_transform)
+TensorTransformFactory.register("img2shufflenet_v2_x2_0")(img2shufflenet_v2_x2_0_transform)
+TensorTransformFactory.register("img2inception_v3")(img2inception_v3_transform)
+TensorTransformFactory.register("img2densenet121")(img2densenet121_transform)
+TensorTransformFactory.register("img2densenet169")(img2densenet169_transform)
+TensorTransformFactory.register("img2densenet201")(img2densenet201_transform)
+TensorTransformFactory.register("img2densenet161")(img2densenet161_transform)
+TensorTransformFactory.register("img2googlenet")(img2googlenet_transform)
+TensorTransformFactory.register("img2mnasnet0_5")(img2mnasnet0_5_transform)
+TensorTransformFactory.register("img2mnasnet0_75")(img2mnasnet0_75_transform)
+TensorTransformFactory.register("img2mnasnet1_0")(img2mnasnet1_0_transform)
+TensorTransformFactory.register("img2mnasnet1_3")(img2mnasnet1_3_transform)
+TensorTransformFactory.register("img2resnext50_32x4d")(img2resnext50_32x4d_transform)
+TensorTransformFactory.register("img2resnext101_32x8d")(img2resnext101_32x8d_transform)
+TensorTransformFactory.register("img2wide_resnet50_2")(img2wide_resnet50_2_transform)
+TensorTransformFactory.register("img2wide_resnet101_2")(img2wide_resnet101_2_transform)
+TensorTransformFactory.register("img2squeezenet1_0")(img2squeezenet1_0_transform)
+TensorTransformFactory.register("img2squeezenet1_1")(img2squeezenet1_1_transform)
+
+TensorTransformFactory.register("gan2resnet18")(gan2resnet18_transform)
+TensorTransformFactory.register("gan2resnet34")(gan2resnet34_transform)
+TensorTransformFactory.register("gan2resnet50")(gan2resnet50_transform)
+TensorTransformFactory.register("gan2resnet101")(gan2resnet101_transform)
+TensorTransformFactory.register("gan2resnet152")(gan2resnet152_transform)
+TensorTransformFactory.register("gan2vgg11")(gan2vgg11_transform)
+TensorTransformFactory.register("gan2vgg11_bn")(gan2vgg11_bn_transform)
+TensorTransformFactory.register("gan2vgg13")(gan2vgg13_transform)
+TensorTransformFactory.register("gan2vgg13_bn")(gan2vgg13_bn_transform)
+TensorTransformFactory.register("gan2vgg16")(gan2vgg16_transform)
+TensorTransformFactory.register("gan2vgg16_bn")(gan2vgg16_bn_transform)
+TensorTransformFactory.register("gan2vgg19")(gan2vgg19_transform)
+TensorTransformFactory.register("gan2vgg19_bn")(gan2vgg19_bn_transform)
+TensorTransformFactory.register("gan2alexnet")(gan2alexnet_transform)
+TensorTransformFactory.register("gan2efficientnet_b0")(gan2efficientnet_b0_transform)
+TensorTransformFactory.register("gan2efficientnet_b1")(gan2efficientnet_b1_transform)
+TensorTransformFactory.register("gan2efficientnet_b2")(gan2efficientnet_b2_transform)
+TensorTransformFactory.register("gan2efficientnet_b3")(gan2efficientnet_b3_transform)
+TensorTransformFactory.register("gan2efficientnet_b4")(gan2efficientnet_b4_transform)
+TensorTransformFactory.register("gan2efficientnet_b5")(gan2efficientnet_b5_transform)
+TensorTransformFactory.register("gan2efficientnet_b6")(gan2efficientnet_b6_transform)
+TensorTransformFactory.register("gan2efficientnet_b7")(gan2efficientnet_b7_transform)
+TensorTransformFactory.register("gan2mobilenet_v2")(gan2mobilenet_v2_transform)
+TensorTransformFactory.register("gan2shufflenet_v2_x0_5")(gan2shufflenet_v2_x0_5_transform)
+TensorTransformFactory.register("gan2shufflenet_v2_x1_0")(gan2shufflenet_v2_x1_0_transform)
+TensorTransformFactory.register("gan2shufflenet_v2_x1_5")(gan2shufflenet_v2_x1_5_transform)
+TensorTransformFactory.register("gan2shufflenet_v2_x2_0")(gan2shufflenet_v2_x2_0_transform)
+TensorTransformFactory.register("gan2inception_v3")(gan2inception_v3_transform)
+TensorTransformFactory.register("gan2densenet121")(gan2densenet121_transform)
+TensorTransformFactory.register("gan2densenet169")(gan2densenet169_transform)
+TensorTransformFactory.register("gan2densenet201")(gan2densenet201_transform)
+TensorTransformFactory.register("gan2densenet161")(gan2densenet161_transform)
+TensorTransformFactory.register("gan2googlenet")(gan2googlenet_transform)
+TensorTransformFactory.register("gan2mnasnet0_5")(gan2mnasnet0_5_transform)
+TensorTransformFactory.register("gan2mnasnet0_75")(gan2mnasnet0_75_transform)
+TensorTransformFactory.register("gan2mnasnet1_0")(gan2mnasnet1_0_transform)
+TensorTransformFactory.register("gan2mnasnet1_3")(gan2mnasnet1_3_transform)
+TensorTransformFactory.register("gan2resnext50_32x4d")(gan2resnext50_32x4d_transform)
+TensorTransformFactory.register("gan2resnext101_32x8d")(gan2resnext101_32x8d_transform)
+TensorTransformFactory.register("gan2wide_resnet50_2")(gan2wide_resnet50_2_transform)
+TensorTransformFactory.register("gan2wide_resnet101_2")(gan2wide_resnet101_2_transform)
+TensorTransformFactory.register("gan2squeezenet1_0")(gan2squeezenet1_0_transform)
+TensorTransformFactory.register("gan2squeezenet1_1")(gan2squeezenet1_1_transform)
+
+

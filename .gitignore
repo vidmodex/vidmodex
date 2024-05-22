@@ -1,0 +1,8 @@
+weights/*
+checkpoint/*
+results/*
+runs/*
+vids/*
+vidmodex.egg-info/*
+.ipynb_checkpoints/*
+

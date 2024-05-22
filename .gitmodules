@@ -1,0 +1,3 @@
+[submodule "external_src/shap"]
+	path = external_src/shap
+	url = https://github.com/vidmodex/shap.git

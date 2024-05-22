@@ -1,0 +1,46 @@
+pipeline: "dfme"
+experiment: "dfme_imagenet1k_gan224_victim_resnet152_clone_resnet152"
+model:
+  victim: 
+    name: "resnet152"
+    weight: None
+    weight_uri: False
+    topk: 1000
+    subpart: "state_dict"
+    remap_keys: "s/^victim\\.//"
+    model_kwargs:
+      num_classes: 1000
+      pretrained: True
+  clone: 
+    name: "resnet152"
+    weight: None
+    weight_uri: False
+    topk: 1000
+    subpart: "full"
+    remap_keys: None
+    model_kwargs:
+      num_classes: 1000
+      pretrained: False
+  generator: 
+    name: "generator224"
+    weight: None
+    weight_uri: False
+    remap_keys: None
+    model_kwargs: {}
+target_dataset:
+  name: "imagenet"
+  num_classes: 1000
+train_dataset:
+  name: "imagenet"
+  num_classes: 1000
+  dataset_type: "imagenet"
+  init_kwargs:
+    root: "../datasets/image/imagenet"
+    train: True
+val_dataset: 
+  name: "imagenet"
+  num_classes: 1000
+  dataset_type: "imagenet"
+  init_kwargs:
+    root: "../datasets/image/imagenet"
+    train: False

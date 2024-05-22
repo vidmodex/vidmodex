@@ -1,0 +1,74 @@
+pipeline: "shap"
+experiment: "shap_ucf101_condtgan_victim_vivit_clone_vivit"
+model:
+  victim:
+    name: "vivit"
+    weight: "weights/pretrained/vivit/vivit_ucf101_1k.pth"
+    weight_uri: False
+    model_kwargs:
+      image_size: 224
+      patch_size: 16
+      num_classes: 101
+      num_frames: 16
+  clone: 
+    name: "vivit"
+    weight: None
+    weight_uri: False
+    model_kwargs:
+      image_size: 224
+      patch_size: 16
+      num_classes: 101
+      num_frames: 16
+  generator: 
+    name: "condtgan"
+    weight: None
+    weight_uri: False
+    model_kwargs:
+      num_classes: 101
+  discriminator:
+    name: "shapdiscriminator3D"
+    weight: None
+    weight_uri: False
+    model_kwargs:
+      n_channels: 3
+      out_channels: 1
+      n_classes: 101
+      width_multiplier: 1
+      trilinear: True
+      prob_out: True 
+      use_ds_conv: False
+target_dataset:
+  name: "ucf101"
+  num_classes: 101
+train_dataset:
+  name: "ucf101"
+  num_classes: 101
+  dataset_type: "videoDataset"
+  init_kwargs:
+    dataset_root: "../datasets/video/UCF101/"
+    dataset_csv: "../datasets/video/ucf-101_train.csv"
+val_dataset: 
+  name: "ucf101"
+  num_classes: 101
+  dataset_type: "videoDataset"
+  init_kwargs:
+    dataset_root: "../datasets/video/UCF101/"
+    dataset_csv: "../datasets/video/ucf-101_eval.csv"
+shap:
+  max_evals: 64
+  logits: False
+  input_shape: [3, 16, 224, 224]
+  model_type: "video"
+  batch_size: 32      # This is for each device
+  prob_validate: False
+config_args:
+  optimize_prob: True
+  lr_D: 0.0001
+  dis_optimizer: "adam"
+  shap_iter: 3
+  shap_prob_iter: 5
+  max_eval_steps: [0.1, 0.2, 0.4, 0.5]
+  max_eval_gamma: 0.5
+  max_eval_thresh: 16
+  min_shap_sigma: 0.2
+  

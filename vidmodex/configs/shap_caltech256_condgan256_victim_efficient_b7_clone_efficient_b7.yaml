@@ -1,0 +1,75 @@
+pipeline: "shap"
+experiment: "shap_caltech256_condgan256_victim_efficient_b7_clone_efficient_b7"
+model:
+  victim: 
+    name: "efficientnet_b7"
+    weight: "weights/pretrained/efficientnet/efficientnet_b7_caltech256_1.0k.ckpt"
+    weight_uri: False
+    topk: 256
+    subpart: "state_dict"
+    remap_keys: "s/^victim\\.//"
+    model_kwargs:
+      num_classes: 256
+  clone: 
+    name: "efficientnet_b7"
+    weight: None #"weights/pretrained/efficientnet/efficientnet_b7_cifar100_1.0k.ckpt"
+    weight_uri: False
+    topk: 256
+    subpart: "full"
+    remap_keys: None
+    model_kwargs:
+      num_classes: 256
+  generator: 
+    name: "condgenerator256"
+    weight: None
+    weight_uri: False
+    remap_keys: None
+    model_kwargs:
+      num_classes: 256
+  discriminator:
+    name: "shapdiscriminator2D"
+    weight: None
+    weight_uri: False
+    model_kwargs:
+      n_channels: 3
+      out_channels: 1
+      n_classes: 256
+      width_multiplier: 1
+      trilinear: True
+      prob_out: True 
+      use_ds_conv: False
+target_dataset:
+  name: "caltech256"
+  num_classes: 256
+train_dataset:
+  name: "caltech256"
+  num_classes: 256
+  dataset_type: "caltech256"
+  init_kwargs:
+    root: "../datasets/image/caltech256"
+    train: True
+val_dataset: 
+  name: "caltech256"
+  num_classes: 256
+  dataset_type: "caltech256"
+  init_kwargs:
+    root: "../datasets/image/caltech256"
+    train: False
+shap:
+  max_evals: 64
+  logits: False
+  input_shape: [3, 256, 256]
+  model_type: "image"
+  batch_size: 32      # This is for each device
+  prob_validate: False
+config_args:
+  optimize_prob: True
+  lr_D: 0.0001
+  dis_optimizer: "adam"
+  shap_iter: 3
+  shap_prob_iter: 5
+  max_eval_steps: [0.1, 0.2, 0.4, 0.5]
+  max_eval_gamma: 0.5
+  max_eval_thresh: 8
+  min_shap_sigma: 0.2
+  
