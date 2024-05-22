@@ -11,7 +11,7 @@ Simplified illustration of the approach
 ## Installation
 
 ```bash
-$ unzip vidmodex_src.zip
+$ git clone --recursive https://github.com/vidmodex/vidmodex
 $ pip install -e vidmodex/
 ```
 
