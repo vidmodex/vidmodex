@@ -24,7 +24,7 @@ class ConditionalShapDiscriminator2D(nn.Module):
         self.convtype = DepthwiseSeparableConv2d if use_ds_conv else nn.Conv2d
         self.n_classes = n_classes
         
-        self.cbn = ConditionalBatchNorm2d(self.channels[0], self.n_classes)
+        self.cbn = ConditionalBatchNorm2d(self.channels[0], self.n_classes, self.n_channels)
         
         self.inc = DoubleConv2D(2 * n_channels, self.channels[0], conv_type=self.convtype)
         self.down1 = Down2D(self.channels[0], self.channels[1], conv_type=self.convtype)
