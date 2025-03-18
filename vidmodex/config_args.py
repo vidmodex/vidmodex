@@ -27,7 +27,7 @@ batch_size_train = 64
 batch_size_val = 128
 
 number_epochs = None
-query_budget = 100 # Million
+query_budget = 100.0 # Million ## Adding float to make it easier to give budget in thousands or below
 epoch_itrs = 32
 g_iter = 1
 d_iter = 5
