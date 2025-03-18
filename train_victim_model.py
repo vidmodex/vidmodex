@@ -16,6 +16,7 @@ from vidmodex.utils import TensorTransformFactory
 from vidmodex.utils.dataloader import DatasetFactory
 import vidmodex.config_args as config_args
 from vidmodex.utils.arg_config import make_parser, config_update
+from vidmodex.utils.load_weight import use_pretrained, fetch_subpart
 
 import pytorch_lightning
 from pytorch_lightning import LightningDataModule, LightningModule, Trainer
@@ -66,8 +67,24 @@ class VictimModelGroup(LightningModule):
         self.config_args = DotMap(self.inter)
         
         self.victim = Victim(**self.data_config["model"]["victim"]["model_kwargs"])
+        if self.data_config["model"]["victim"]["weight_uri"]:
+            self.victim.load_state_dict(
+                fetch_subpart(
+                    torch.hub.load_state_dict_from_url(
+                        self.data_config["model"]["victim"]["weight"],
+                    ), self.data_config["model"]["victim"].get("subpart", "full"),
+                    self.data_config["model"]["victim"].get("remap_keys", None)
+                ))
+            
+        elif self.data_config["model"]["victim"]["weight"] is not None:
+            self.victim.load_state_dict(fetch_subpart(
+                torch.load(
+                    self.data_config["model"]["victim"]["weight"],
+                ), self.data_config["model"]["victim"].get("subpart", "full"),
+                self.data_config["model"]["victim"].get("remap_keys", None)
+            ))
+        self.victim.train()
         
-
     def forward(self, x):
         return self.victim(x)
 

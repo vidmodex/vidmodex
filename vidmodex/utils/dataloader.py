@@ -9,7 +9,7 @@ import pickle
 import torch
 import torch.nn.functional as F
 from torch.utils.data import DataLoader, Dataset
-from torchvision.datasets import ImageNet, CIFAR10, CIFAR100, MNIST, Caltech101, Caltech256
+from torchvision.datasets import ImageNet, CIFAR10, CIFAR100, MNIST, Caltech101, Caltech256, ImageFolder
 
 class DatasetFactory:
     _dataset_classes = {}
@@ -168,3 +168,4 @@ DatasetFactory.register('mnist')(MNIST)
 DatasetFactory.register('caltech101')(Caltech101)
 DatasetFactory.register('caltech256')(Caltech256)
 DatasetFactory.register('fakeVideoDataset')(FakeVideosDataset)
+DatasetFactory.register('imageFolder')(ImageFolder)
