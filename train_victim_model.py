@@ -23,7 +23,7 @@ from pytorch_lightning import LightningDataModule, LightningModule, Trainer
 from pytorch_lightning.callbacks.progress import TQDMProgressBar
 from pytorch_lightning.loggers import TensorBoardLogger
 from pytorch_lightning.strategies.ddp import DDPStrategy
-
+import lightning_fabric.utilities.seed as lfus 
 from dotmap import DotMap
 
 
@@ -137,7 +137,7 @@ def victim_target_train(Victim, data_config):
     # if config_args.store_checkpoints:
     #     os.makedirs(config_args.log_dir + "/checkpoints", exist_ok=True)
         
-    pytorch_lightning.utilities.seed.seed_everything(config_args.seed)
+    lfus.seed_everything(config_args.seed)
     np.random.seed(config_args.seed)
     random.seed(config_args.seed)
 
@@ -169,7 +169,7 @@ def victim_target_train(Victim, data_config):
     data = TargetDataloader(data_config=data_config, config_args=config_args)
     
     trainer = Trainer(
-        strategy = DDPStrategy(find_unused_parameters=False),
+        # strategy = DDPStrategy(find_unused_parameters=False),
         max_epochs=config_args.number_epochs,
         check_val_every_n_epoch = config_args.val_every_epoch,
         log_every_n_steps=config_args.log_every_epoch,
@@ -177,10 +177,9 @@ def victim_target_train(Victim, data_config):
         accelerator=config_args.accelerator,
         devices=config_args.devices,
         num_nodes=config_args.num_nodes,
-        resume_from_checkpoint=config_args.resume_ckpt,
         logger=logger
     )
-    trainer.fit(model, data)
+    trainer.fit(model, data, ckpt_path=config_args.resume_ckpt)
     
     trainer.validate(model, data)
     

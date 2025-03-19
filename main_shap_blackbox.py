@@ -32,6 +32,7 @@ import pytorch_lightning
 from pytorch_lightning import LightningDataModule, LightningModule, Trainer
 from pytorch_lightning.callbacks.progress import TQDMProgressBar
 from pytorch_lightning.loggers import TensorBoardLogger
+import lightning_fabric.utilities.seed as lfus 
 from vidmodex.utils.callbacks import VariableAdjustmentCallback
 # from pl_bolts.callbacks import BatchGradientVerificationCallback
 # from vidmodex.utils.callbacks import CheckBatchGradient
@@ -142,6 +143,7 @@ class LitModelGroup(LightningModule):
         self.generator = Generator(**self.data_config["model"]["generator"]["model_kwargs"])
         self.discriminator = Discriminator(**self.data_config["model"]["discriminator"]["model_kwargs"])
         
+        self.validation_step_outputs = []
         self.val_prob_flag = self.data_config["shap"]["prob_validate"]
         self.automatic_optimization = False
         
@@ -154,7 +156,7 @@ class LitModelGroup(LightningModule):
                                discriminator=self.discriminator, shap_loss=self.shap_loss, cls_id=cls_idx, victim_max_evals=self.victim_max_evals,
                                device=self.device, optimizer=[optimizer_S, optimizer_G, optimizer_D], epoch=self.current_epoch, epoch_iters=len(cls_idx))
         
-        if self.config_args.scheduler != "none":
+        if self.config_args.spytorch_lightning.utilities.seedcheduler != "none":
             self.scheduler_S.step()
             self.scheduler_G.step()
         
@@ -173,9 +175,18 @@ class LitModelGroup(LightningModule):
             shap_prob_loss = shap_test(self.config_args, batch, self.discriminator, self.shap_loss, self.device)
             acc.update({"shap_prob_loss": shap_prob_loss})
         # torch.cuda.empty_cache()
+        self.validation_step_outputs.append({**acc, "loss": test_loss})
         return {"loss": test_loss, **acc}
 
-    def validation_epoch_end(self, validation_step_outputs):
+    def on_validation_epoch_start(self):
+        self.validation_step_outputs.clear()
+    
+    def on_validation_epoch_end(self):
+        gathered_outputs = self.all_gather(self.validation_step_outputs)
+        if self.trainer.is_global_zero:
+            self.custom_validation_epoch_end(gathered_outputs)
+
+    def custom_validation_epoch_end(self, validation_step_outputs):
         outputs = [[] for _ in validation_step_outputs[0].keys()]
 
         for out in validation_step_outputs:
@@ -281,7 +292,7 @@ def lit_shap_blackbox_main(Victim, Student, Generator, Discriminator, data_confi
         os.makedirs(config_args_main.log_dir + "/checkpoints", exist_ok=True)
         
 
-    pytorch_lightning.utilities.seed.seed_everything(config_args_main.seed)
+    lfus.seed_everything(config_args_main.seed)
     np.random.seed(config_args_main.seed)
     random.seed(config_args_main.seed)
     
@@ -378,11 +389,10 @@ def lit_shap_blackbox_main(Victim, Student, Generator, Discriminator, data_confi
         accelerator=config_args_main.accelerator,
         devices=config_args_main.devices,
         num_nodes=config_args_main.num_nodes,
-        resume_from_checkpoint=config_args_main.resume_ckpt,
         logger=logger
     )
     #trainer.validate(model, data)
-    trainer.fit(model, data)
+    trainer.fit(model, data, ckpt_path=config_args_main.resume_ckpt)
 
     print("Best Acc=%.6f" % model.best_acc)
     
