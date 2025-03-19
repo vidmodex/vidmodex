@@ -118,6 +118,24 @@ class LitModelGroup(LightningModule):
         self.Ttransform_clone = TensorTransformFactory.get(f'gan2{self.data_config["model"]["clone"]["name"]}')
         self.student = Student(**self.data_config["model"]["clone"]["model_kwargs"])
 
+        ## To support partial extractions
+        if self.data_config["model"]["clone"]["weight_uri"]:
+            self.student.load_state_dict(
+                fetch_subpart(
+                    torch.hub.load_state_dict_from_url(
+                        self.data_config["model"]["clone"]["weight"],
+                    ), self.data_config["model"]["clone"].get("subpart", "full"),
+                    self.data_config["model"]["clone"].get("remap_keys", None)
+                ))
+            
+        elif self.data_config["model"]["clone"]["weight"] is not None:
+            self.student.load_state_dict(fetch_subpart(
+                torch.load(
+                    self.data_config["model"]["clone"]["weight"],
+                ), self.data_config["model"]["clone"].get("subpart", "full"),
+                self.data_config["model"]["clone"].get("remap_keys", None)
+            ))
+
         dummy_input = torch.ones(*self.data_config["shap"]["input_shape"])
         self.shap_loss = ShapLoss(model_call=self.teacher.forward, input_sample=dummy_input, model_type=self.data_config["shap"]["model_type"], explainer_batch_size=self.data_config["shap"]["batch_size"], max_evals=self.victim_max_evals)
 
