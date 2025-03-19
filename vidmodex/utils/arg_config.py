@@ -10,7 +10,7 @@ def make_parser(parser, config_args):
         if k.startswith("_"):continue
         v = getattr(config_args, k)
         if isinstance(v, (float, int, str, list, dict, tuple)):
-            parser.add_argument(f"--{k}", type=type(v), default=v)
+            parser.add_argument(f"--{k}", type=type(v), default=None)
     return parser
 
 def config_update(parsed_args, config_args, experiment_name="victim_train"):
@@ -28,7 +28,8 @@ def config_update(parsed_args, config_args, experiment_name="victim_train"):
     for k in dir(parsed_args):
         if k not in dir(config_args):continue
         v = getattr(parsed_args, k)
-        setattr(config_args, k, v)
+        if v is not None:
+            setattr(config_args, k, v)
         
     if config_args.resume_ckpt is None and config_args.resume:
         resume_ckpt = f'runs/{custom_config["experiment"]}'
