@@ -32,6 +32,8 @@ import pytorch_lightning
 from pytorch_lightning import LightningDataModule, LightningModule, Trainer
 from pytorch_lightning.callbacks.progress import TQDMProgressBar
 from pytorch_lightning.loggers import TensorBoardLogger
+from pytorch_lightning.callbacks import ModelCheckpoint
+
 import lightning_fabric.utilities.seed as lfus 
 from vidmodex.utils.callbacks import VariableAdjustmentCallback
 # from pl_bolts.callbacks import BatchGradientVerificationCallback
@@ -143,7 +145,6 @@ class LitModelGroup(LightningModule):
         self.generator = Generator(**self.data_config["model"]["generator"]["model_kwargs"])
         self.discriminator = Discriminator(**self.data_config["model"]["discriminator"]["model_kwargs"])
         
-        self.validation_step_outputs = []
         self.val_prob_flag = self.data_config["shap"]["prob_validate"]
         self.automatic_optimization = False
         
@@ -160,12 +161,12 @@ class LitModelGroup(LightningModule):
             self.scheduler_S.step()
             self.scheduler_G.step()
         
-        self.logger.experiment.add_scalar("Loss Student", loss_S, global_step=self.global_step)
-        self.logger.experiment.add_scalar("Loss Generator", loss_G, global_step=self.global_step)
-        self.logger.experiment.add_scalar("Loss Discriminator", loss_D, global_step=self.global_step)
-        self.logger.experiment.add_scalar("Loss Prob", prob_loss, global_step=self.global_step)
+        self.log("Loss_Student", loss_S, on_step=True, on_epoch=False, sync_dist=True)
+        self.log("Loss_Generator", loss_G,  on_step=True, on_epoch=False, sync_dist=True)
+        self.log("Loss_Discriminator", loss_D, on_step=True, on_epoch=False, sync_dist=True)
+        self.log("Loss_Prob", prob_loss,  on_step=True, on_epoch=False, sync_dist=True)
         # return loss_S, loss_G
-        
+        return loss_S
 
     def validation_step(self, batch, batch_idx):
         acc, test_loss = test(self.config_args, batch, student=self.student, generator=self.generator,
@@ -175,67 +176,9 @@ class LitModelGroup(LightningModule):
             shap_prob_loss = shap_test(self.config_args, batch, self.discriminator, self.shap_loss, self.device)
             acc.update({"shap_prob_loss": shap_prob_loss})
         # torch.cuda.empty_cache()
-        self.validation_step_outputs.append({**acc, "loss": test_loss})
-        return {"loss": test_loss, **acc}
-
-    def on_validation_epoch_start(self):
-        self.validation_step_outputs.clear()
-    
-    def on_validation_epoch_end(self):
-        gathered_outputs = self.all_gather(self.validation_step_outputs)
-        if self.trainer.is_global_zero:
-            self.custom_validation_epoch_end(gathered_outputs)
-
-    def custom_validation_epoch_end(self, validation_step_outputs):
-        outputs = [[] for _ in validation_step_outputs[0].keys()]
-
-        for out in validation_step_outputs:
-            for i, v in enumerate(out.keys()):
-                outputs[i].append(out[v])
-
-        for i, v in enumerate(validation_step_outputs[0].keys()):
-            self.logger.experiment.add_scalar(f"Testing {v}", np.array(outputs[i]).mean(), global_step=self.global_step)
-        
-        acc = 0.0
-        test_loss = 0.0
-        acc_flag = False
-        loss_flag = False
-        for i,v in enumerate(validation_step_outputs[0].keys()):
-            if "acc" in v and not acc_flag:
-                acc = np.array(outputs[i]).mean()
-                acc_flag = True
-            if "loss" in v and not loss_flag:
-                test_loss = np.array(outputs[i]).mean()
-                loss_flag = True
-                
-        file = open(self.config_args.log_file, "w")
-        file.seek(0,2)
-        myprint('\nTest set: Average loss: {:.4f}, Accuracy: ({:.4f}%)\n'.format(
-            test_loss, 
-            100*acc) , file)
-        file.close()
-        with open(self.config_args.log_dir + "/accuracy.csv", "a") as f:
-            f.write("%d,%f\n"%(self.current_epoch, acc))
-        data_set = self.data_config["target_dataset"]["name"]
-        clone_name = self.data_config["model"]["clone"]["name"]
-        gen_name = self.data_config["model"]["generator"]["name"]
-        dis_name = self.data_config["model"]["discriminator"]["name"]
-        if acc > self.best_acc:
-            self.best_acc = acc
-            torch.save(self.student.state_dict(
-            ), f"{self.config_args.log_dir}/checkpoints/best_{data_set}-{clone_name}.pth")
-            torch.save(self.generator.state_dict(
-            ), f"{self.config_args.log_dir}/checkpoints/best_{data_set}-{gen_name}.pth")
-            torch.save(self.discriminator.state_dict(
-            ), f"{self.config_args.log_dir}/checkpoints/best_{data_set}-{dis_name}.pth")
-        if self.config_args.store_checkpoints:
-            torch.save(self.student.state_dict(), self.config_args.log_dir +
-                        f"/checkpoints/clone-{clone_name}.pth")
-            torch.save(self.generator.state_dict(), self.config_args.log_dir +
-                        f"/checkpoints/generator-{gen_name}.pth")
-            torch.save(self.discriminator.state_dict(), self.config_args.log_dir +
-                        f"/checkpoints/discriminator-{dis_name}.pth")
-        torch.cuda.empty_cache()
+        output = {"loss": test_loss, **acc}
+        self.log_dict(output, on_step=True, on_epoch=True, sync_dist=True)
+        return test_loss   
 
     def configure_optimizers(self):
         
@@ -331,7 +274,7 @@ def lit_shap_blackbox_main(Victim, Student, Generator, Discriminator, data_confi
     number_epochs = config_args_main.query_budget // (
             (config_args_main.cost_per_iteration + config_args_main.shap_cost_per_iteration) * config_args_main.epoch_itrs) + 1
     config_args_main.number_epochs = number_epochs
-    print("\nTotal budget:", {config_args_main.query_budget // 10**6}, "M")
+    print("\nTotal budget:", {config_args_main.query_budget / 10**6}, "M")
     print("Average Shap Cost Per iteration:", config_args_main.shap_cost_per_iteration)
     print("Shap Cost Per eval:", config_args_main.shap_cost_per_epoch_per_eval)
     print("Cost per iterations: ", config_args_main.cost_per_iteration)
@@ -381,11 +324,42 @@ def lit_shap_blackbox_main(Victim, Student, Generator, Discriminator, data_confi
                             config_args_main.max_eval_steps, gamma=config_args_main.max_eval_gamma, 
                             threshold=config_args_main.max_eval_thresh)
     
+    checkpoint_callbacks = [
+        ModelCheckpoint(
+            save_top_k=5,
+            monitor="top_1_acc",
+            mode="max",
+            dirpath=config_args_main.model_dir,
+            filename="pipeline-{epoch:05d}-{top_1_acc:.3f}",
+        ),
+        ModelCheckpoint(
+            save_top_k=2,
+            monitor="top_5_acc",
+            mode="max",
+            dirpath=config_args_main.model_dir,
+            filename="pipeline-{epoch:05d}-{top_5_acc:.3f}",
+        ),
+        ModelCheckpoint(
+            save_top_k=5,
+            monitor="Loss_Discriminator",
+            mode="min",
+            dirpath=config_args_main.model_dir,
+            filename="pipeline-{epoch:05d}-{Loss_Discriminator:.2f}",
+        ),
+        ModelCheckpoint(
+            save_top_k=5,
+            monitor="Loss_Student",
+            mode="min",
+            dirpath=config_args_main.model_dir,
+            filename="pipeline-{epoch:05d}-{Loss_Student:.2f}",
+        )
+    ]
+
     trainer = Trainer(
         max_epochs=config_args_main.number_epochs,
         check_val_every_n_epoch = config_args_main.val_every_epoch,
         log_every_n_steps=config_args_main.log_every_epoch,
-        callbacks = [TQDMProgressBar(refresh_rate=1), variable_max_evals], #, verification],
+        callbacks = [TQDMProgressBar(refresh_rate=1), variable_max_evals, *checkpoint_callbacks], #, verification],
         accelerator=config_args_main.accelerator,
         devices=config_args_main.devices,
         num_nodes=config_args_main.num_nodes,
@@ -393,6 +367,7 @@ def lit_shap_blackbox_main(Victim, Student, Generator, Discriminator, data_confi
     )
     #trainer.validate(model, data)
     trainer.fit(model, data, ckpt_path=config_args_main.resume_ckpt)
+    trainer.save_checkpoint(config_args_main.log_dir + f"/final_shap_blackbox_QBudget_{config_args_main.query_budget}.ckpt")
 
     print("Best Acc=%.6f" % model.best_acc)
     

@@ -127,9 +127,9 @@ def train_shap_datafree(trainer, config_args, teacher, teacher_transform, studen
 
         config_args.query_budget -= config_args.cost_per_iteration + (config_args.shap_cost_per_epoch_per_eval * victim_max_evals)
 
-        torch.save(generator, config_args.log_dir + "/weights/gen_model_%d.pt" % i)
-        torch.save(student, config_args.log_dir + "/weights/student_model_%d.pt" % i)
-        torch.save(teacher,  config_args.log_dir + "/weights/teacher_model_%d.pt" % i)
+        # torch.save(generator, config_args.log_dir + "/weights/gen_model_%d.pt" % i)
+        # torch.save(student, config_args.log_dir + "/weights/student_model_%d.pt" % i)
+        # torch.save(teacher,  config_args.log_dir + "/weights/teacher_model_%d.pt" % i)
 
         if config_args.query_budget < config_args.cost_per_iteration:
             return loss_S, loss_G, loss_D, prob_loss
