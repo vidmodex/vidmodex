@@ -31,6 +31,8 @@ import pytorch_lightning
 from pytorch_lightning import LightningDataModule, LightningModule, Trainer
 from pytorch_lightning.callbacks.progress import TQDMProgressBar
 from pytorch_lightning.loggers import TensorBoardLogger
+
+import lightning_fabric.utilities.seed as lfus 
 # from pl_bolts.callbacks import BatchGradientVerificationCallback
 # from vidmodex.utils.callbacks import CheckBatchGradient
 from dotmap import DotMap
@@ -235,7 +237,7 @@ def lit_blackbox_main(Victim, Student, Generator, data_config):
         os.makedirs(config_args.log_dir + "/checkpoints", exist_ok=True)
         
 
-    pytorch_lightning.utilities.seed.seed_everything(config_args.seed)
+    lfus.seed_everything(config_args.seed)
     np.random.seed(config_args.seed)
     random.seed(config_args.seed)
     

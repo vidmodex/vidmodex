@@ -68,7 +68,7 @@ def estimate_gradient_objective(
             pts = evaluation_points[i *
                                     max_number_points: min(N*(m+1), (i+1) * max_number_points)]
             pts = pts.to(device)
-            pred_victim_pts = victim_model(victim_transform(pts)).detach()
+            pred_victim_pts = victim_model(victim_transform(pts)) #.detach()
             pred_clone_pts = F.softmax(clone_model(clone_transform(pts)), dim=1)
             pred_victim.append(pred_victim_pts)
             pred_clone.append(pred_clone_pts)
