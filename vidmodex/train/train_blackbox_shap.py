@@ -75,8 +75,10 @@ def train_shap_datafree(trainer, config_args, teacher, teacher_transform, studen
             shap_gt_cache=None
             shap_gt_abs_max_val_cache = None
             target_cls_cache = None
-            optimizer_G.zero_grad()
             z = torch.randn((config_args.batch_size_z, config_args.nz), device=device)
+            optimizer_G.zero_grad()
+            generator.train()
+            discriminator.train()
             fake = generator(z, cls_idx)
             if teacher_transform:
                 fake = teacher_transform(fake)
@@ -91,11 +93,10 @@ def train_shap_datafree(trainer, config_args, teacher, teacher_transform, studen
             optimizer_G.step()
             
             if config_args.optimize_prob and victim_max_evals>0:
-                discriminator.train()
                 fake = fake.detach()
                 for _ in range(config_args.shap_prob_iter):
                     optimizer_D.zero_grad()
-                    
+                    discriminator.train()
                     
                     shap_out_mu, shap_out_logvar = discriminator(fake, cls_idx)
                     shap_out_sigma = torch.exp(0.5*shap_out_logvar)
@@ -105,7 +106,7 @@ def train_shap_datafree(trainer, config_args, teacher, teacher_transform, studen
                         
                 discriminator.eval()
         
-        if i==0 or (i+1) % config_args.log_interval == 0:
+        if False and (i==0 or (i+1) % config_args.log_interval == 0):
             file = open(config_args.log_file,'w')
             file.seek(0,2)
             myprint('Train Epoch:' + str(epoch) + "[" + str(i) + '/'+ str(config_args.epoch_itrs)+ "("+ str(100 * float(i) / float(
