@@ -49,11 +49,12 @@ def train_shap_datafree(trainer, config_args, teacher, teacher_transform, studen
                 x_true_grad = measure_true_grad_norm(config_args, teacher, teacher_transform, student, student_transform, device, fake)
 
         for _ in range(config_args.d_iter):
-            z = torch.randn((config_args.batch_size_z, config_args.nz)).to(device)
-            fake = generator(z, cls_idx).detach()
+            z = torch.randn((config_args.batch_size_z, config_args.nz), device=device)
             optimizer_S.zero_grad()
+            generator.eval()
 
             with torch.no_grad():
+                fake = generator(z, cls_idx)
                 t_logit = teacher(fake)
 
             if config_args.loss == "l1" and config_args.no_logits:
