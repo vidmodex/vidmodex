@@ -25,6 +25,7 @@ batch_size_z = 20
 batch_size_gram = 64
 batch_size_train = 64
 batch_size_val = 128
+batch_size_shap_z = 32
 
 number_epochs = None
 query_budget = 100.0 # Million ## Adding float to make it easier to give budget in thousands or below

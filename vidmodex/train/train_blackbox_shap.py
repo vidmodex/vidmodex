@@ -75,7 +75,7 @@ def train_shap_datafree(trainer, config_args, teacher, teacher_transform, studen
             shap_gt_cache=None
             shap_gt_abs_max_val_cache = None
             target_cls_cache = None
-            z = torch.randn((config_args.batch_size_z, config_args.nz), device=device)
+            z = torch.randn((config_args.batch_size_shap_z, config_args.nz), device=device)
             optimizer_G.zero_grad()
             generator.train()
             discriminator.train()

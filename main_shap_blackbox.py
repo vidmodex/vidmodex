@@ -255,7 +255,7 @@ def lit_shap_blackbox_main(Victim, Student, Generator, Discriminator, data_confi
     # Cost calculation needs a fix
     config_args_main.cost_per_iteration = config_args_main.batch_size_z * \
                               (config_args_main.g_iter * (config_args_main.grad_m + 1) + config_args_main.d_iter)
-    cost_per_epoch_shap = lambda max_evals: max_evals * config_args_main.batch_size_z * config_args_main.shap_iter 
+    cost_per_epoch_shap = lambda max_evals: max_evals * config_args_main.batch_size_shap_z * config_args_main.shap_iter 
     
     shap_cost = 0
     prev_step = 0
@@ -269,7 +269,7 @@ def lit_shap_blackbox_main(Victim, Student, Generator, Discriminator, data_confi
             break
         
     config_args_main.shap_cost_per_iteration = int(shap_cost)
-    config_args_main.shap_cost_per_epoch_per_eval = config_args_main.batch_size_z * config_args_main.shap_iter 
+    config_args_main.shap_cost_per_epoch_per_eval = config_args_main.batch_size_shap_z * config_args_main.shap_iter 
     
     number_epochs = config_args_main.query_budget // (
             (config_args_main.cost_per_iteration + config_args_main.shap_cost_per_iteration) * config_args_main.epoch_itrs) + 1
