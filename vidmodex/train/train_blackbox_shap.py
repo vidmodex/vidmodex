@@ -71,7 +71,7 @@ def train_shap_datafree(trainer, config_args, teacher, teacher_transform, studen
             optimizer_S.step()
         
         for _ in range(config_args.shap_iter):
-            for i in range(np.ceil(config_args.batch_size_z / config_args.batch_size_shap_z)):
+            for i in range(int(np.ceil(config_args.batch_size_z / config_args.batch_size_shap_z))):
                 interim_batch_st, interim_batch_end = i*config_args.batch_size_shap_z, min(config_args.batch_size_z, (i+1)*config_args.batch_size_shap_z)
                 cls_idx_sub = cls_idx[interim_batch_st:interim_batch_end]
                 shap_gt_cache=None
