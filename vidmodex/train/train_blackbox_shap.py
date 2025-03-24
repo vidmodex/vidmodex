@@ -70,41 +70,43 @@ def train_shap_datafree(trainer, config_args, teacher, teacher_transform, studen
             trainer.manual_backward(loss_S)
             optimizer_S.step()
         
-        
         for _ in range(config_args.shap_iter):
-            shap_gt_cache=None
-            shap_gt_abs_max_val_cache = None
-            target_cls_cache = None
-            z = torch.randn((config_args.batch_size_shap_z, config_args.nz), device=device)
-            optimizer_G.zero_grad()
-            generator.train()
-            discriminator.train()
-            fake = generator(z, cls_idx)
-            if teacher_transform:
-                fake = teacher_transform(fake)
-            
-            shap_out_mu, shap_out_logvar = discriminator(fake, cls_idx)
-            shap_out_sigma = torch.exp(0.5*shap_out_logvar)
-            loss_D, (shap_gt, shap_gt_abs_max_val, target_cls) = shap_loss(fake.detach(), shap_out_mu, shap_out_sigma.clip(min=config_args.min_shap_sigma), optimize_prob=False, optimize_energy=True,class_idx=cls_idx, shap_gt=shap_gt_cache)            
-            shap_gt_cache = shap_gt if shap_gt is not None else shap_gt_cache
-            shap_gt_abs_max_val_cache = shap_gt_abs_max_val if shap_gt_abs_max_val is not None else shap_gt_abs_max_val_cache
-            target_cls_cache = target_cls if target_cls is not None else target_cls_cache
-            trainer.manual_backward(loss_D)
-            optimizer_G.step()
-            
-            if config_args.optimize_prob and victim_max_evals>0:
-                fake = fake.detach()
-                for _ in range(config_args.shap_prob_iter):
-                    optimizer_D.zero_grad()
-                    discriminator.train()
-                    
-                    shap_out_mu, shap_out_logvar = discriminator(fake, cls_idx)
-                    shap_out_sigma = torch.exp(0.5*shap_out_logvar)
-                    prob_loss, _ = shap_loss(fake, shap_out_mu, shap_out_sigma, optimize_prob=True, optimize_energy=False, class_idx=cls_idx, shap_gt=shap_gt_cache)
-                    trainer.manual_backward(prob_loss)
-                    optimizer_D.step()
+            for i in range(np.ceil(config_args.batch_size_z / config_args.batch_size_shap_z)):
+                interim_batch_st, interim_batch_end = i*config_args.batch_size_shap_z, min(config_args.batch_size_z, (i+1)*config_args.batch_size_shap_z)
+                cls_idx_sub = cls_idx[interim_batch_st:interim_batch_end]
+                shap_gt_cache=None
+                shap_gt_abs_max_val_cache = None
+                target_cls_cache = None
+                z = torch.randn((interim_batch_end-interim_batch_st, config_args.nz), device=device)
+                optimizer_G.zero_grad()
+                generator.train()
+                discriminator.train()
+                fake = generator(z, cls_idx_sub)
+                if teacher_transform:
+                    fake = teacher_transform(fake)
+                
+                shap_out_mu, shap_out_logvar = discriminator(fake, cls_idx_sub)
+                shap_out_sigma = torch.exp(0.5*shap_out_logvar)
+                loss_D, (shap_gt, shap_gt_abs_max_val, target_cls) = shap_loss(fake.detach(), shap_out_mu, shap_out_sigma.clip(min=config_args.min_shap_sigma), optimize_prob=False, optimize_energy=True,class_idx=cls_idx, shap_gt=shap_gt_cache)            
+                shap_gt_cache = shap_gt if shap_gt is not None else shap_gt_cache
+                shap_gt_abs_max_val_cache = shap_gt_abs_max_val if shap_gt_abs_max_val is not None else shap_gt_abs_max_val_cache
+                target_cls_cache = target_cls if target_cls is not None else target_cls_cache
+                trainer.manual_backward(loss_D)
+                optimizer_G.step()
+                
+                if config_args.optimize_prob and victim_max_evals>0:
+                    fake = fake.detach()
+                    for _ in range(config_args.shap_prob_iter):
+                        optimizer_D.zero_grad()
+                        discriminator.train()
                         
-                discriminator.eval()
+                        shap_out_mu, shap_out_logvar = discriminator(fake, cls_idx_sub)
+                        shap_out_sigma = torch.exp(0.5*shap_out_logvar)
+                        prob_loss, _ = shap_loss(fake, shap_out_mu, shap_out_sigma, optimize_prob=True, optimize_energy=False, class_idx=cls_idx, shap_gt=shap_gt_cache)
+                        trainer.manual_backward(prob_loss)
+                        optimizer_D.step()
+                            
+                    discriminator.eval()
         
         if False and (i==0 or (i+1) % config_args.log_interval == 0):
             file = open(config_args.log_file,'w')
