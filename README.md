@@ -2,6 +2,19 @@
 
 This is the official code for the paper submission of Vidmodex
 
+<p align="center">
+  We have new demo, try it out !!!
+  <br>
+  <br>
+  <a target="_blank" href="https://colab.research.google.com/github/vidmodex/vidmodex/blob/notebooks/notebooks/Vidmodex_quickdemo.ipynb">
+    <img src="https://img.shields.io/badge/Open%20GPU%20Demo-Colab%20GPU-%2376B900?logo=googlecolab&style=for-the-badge" alt="Open GPU Demo">
+  </a>
+  &nbsp;&nbsp;
+  <a target="_blank" href="https://colab.research.google.com/github/vidmodex/vidmodex/blob/notebooks/notebooks/Vidmodex_quickdemo_xla.ipynb">
+    <img src="https://img.shields.io/badge/Open%20TPU%20Demo-Colab%20TPU-%23FF6D00?logo=googlecolab&style=for-the-badge" alt="Open TPU Demo">
+  </a>
+</p>
+
 ## Illustration of Approach
 
 ![](media/vidmodex.png)
